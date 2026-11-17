@@ -1,0 +1,125 @@
+
+<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+  <input
+    type="text"
+    placeholder="Search students by name..."
+    (input)="searchStudents($event)"
+    class="w-full max-w-sm rounded-lg border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+  />
+
+  <button
+  type="button"
+  routerLink="/add"
+  class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+>
+  Add Student
+</button>
+
+</div>
+
+@if (loading) {
+  <div class="py-8 text-center text-gray-500">
+    Loading students...
+  </div>
+}
+
+@if (errorMessage) {
+  <div class="mb-4 rounded-lg bg-red-50 p-4 text-red-600">
+    {{ errorMessage }}
+  </div>
+}
+
+<div class="overflow-x-auto rounded-lg border border-gray-200">
+
+  <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+
+    <thead class="bg-gray-50 text-xs uppercase tracking-wider text-gray-600">
+      <tr>
+        <th class="px-4 py-3">Student ID</th>
+        <th class="px-4 py-3">First Name</th>
+        <th class="px-4 py-3">Last Name</th>
+        <th class="px-4 py-3">Email</th>
+        <th class="px-4 py-3">Phone</th>
+        <th class="px-4 py-3">Age</th>
+        <th class="px-4 py-3">Gender</th>
+        <th class="px-4 py-3">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-gray-200 bg-white">
+
+      @for (student of students; track student.id) {
+        <tr class="hover:bg-gray-50">
+
+          <td class="whitespace-nowrap px-4 py-3">{{ student.id }}</td>
+          <td class="whitespace-nowrap px-4 py-3">{{ student.firstName }}</td>
+          <td class="whitespace-nowrap px-4 py-3">{{ student.lastName }}</td>
+          <td class="px-4 py-3">{{ student.email }}</td>
+          <td class="whitespace-nowrap px-4 py-3">{{ student.phone }}</td>
+          <td class="px-4 py-3">{{ student.age }}</td>
+          <td class="px-4 py-3">{{ student.gender }}</td>
+
+          <td class="whitespace-nowrap px-4 py-3">
+
+            <button type="button" class="mr-2 text-blue-600 hover:underline">
+              View
+            </button>
+
+            <button type="button" class="mr-2 text-amber-600 hover:underline">
+              Edit
+            </button>
+
+            <button type="button" class="text-red-600 hover:underline">
+              Delete
+            </button>
+
+          </td>
+        </tr>
+      } @empty {
+        @if (!loading) {
+          <tr>
+            <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+              No students found.
+            </td>
+          </tr>
+        }
+      }
+
+    </tbody>
+
+  </table>
+
+</div>
+
+@if (!searchQuery && total > 0) {
+  <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+    <p class="text-sm text-gray-600">
+      Page {{ currentPage }} of {{ totalPages }}
+      ({{ total }} students)
+    </p>
+
+    <div class="flex gap-2">
+
+      <button
+        type="button"
+        (click)="previousPage()"
+        [disabled]="skip === 0 || loading"
+        class="rounded-lg border border-gray-300 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 hover:bg-gray-100"
+      >
+        Previous
+      </button>
+
+      <button
+        type="button"
+        (click)="nextPage()"
+        [disabled]="skip + limit >= total || loading"
+        class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 hover:bg-blue-700"
+      >
+        Next
+      </button>
+
+    </div>
+  </div>
+}
