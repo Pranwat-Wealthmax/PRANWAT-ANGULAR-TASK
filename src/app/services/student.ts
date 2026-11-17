@@ -1,7 +1,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Student, StudentResponse } from '../models/student';
 
 interface LocalStudentData {
@@ -59,7 +59,6 @@ export class StudentService {
   private mergeStudents(apiStudents: Student[]): Student[] {
     const localData = this.getLocalData();
 
-    // Apply updated student data
     let students = apiStudents.map(student => {
       const updatedStudent = localData.updated.find(
         item => item.id === student.id
@@ -91,14 +90,12 @@ export class StudentService {
   // Get students with pagination
   getStudents(limit: number, skip: number): Observable<StudentResponse> {
     return this.getAllStudents().pipe(
-      map(students => {
-        return {
-          users: students.slice(skip, skip + limit),
-          total: students.length,
-          skip: skip,
-          limit: limit
-        };
-      })
+      map(students => ({
+        users: students.slice(skip, skip + limit),
+        total: students.length,
+        skip,
+        limit
+      }))
     );
   }
 
@@ -153,7 +150,6 @@ export class StudentService {
   addStudent(student: Omit<Student, 'id'>): Observable<Student> {
     const data = this.getLocalData();
 
-    // Generate a unique local ID
     let newId = Date.now();
 
     while (
@@ -179,70 +175,73 @@ export class StudentService {
     id: number,
     student: Omit<Student, 'id'>
   ): Observable<Student> {
+
+    const updatedStudent: Student = {
+      ...student,
+      id
+    };
+
+    const data = this.getLocalData();
+
+    const addedIndex = data.added.findIndex(
+      item => item.id === id
+    );
+
+    if (addedIndex !== -1) {
+      data.added[addedIndex] = updatedStudent;
+    } else {
+      const updatedIndex = data.updated.findIndex(
+        item => item.id === id
+      );
+
+      if (updatedIndex !== -1) {
+        data.updated[updatedIndex] = updatedStudent;
+      } else {
+        data.updated.push(updatedStudent);
+      }
+    }
+
+    // Save before calling the API
+    this.saveLocalData(data);
+
     return this.http.put<Student>(
       `${this.apiUrl}/${id}`,
       student
     ).pipe(
-      map(() => {
-        const updatedStudent: Student = {
-          ...student,
-          id
-        };
+      map(() => updatedStudent),
 
-        const data = this.getLocalData();
-
-        // Check whether this is a locally added student
-        const addedIndex = data.added.findIndex(
-          item => item.id === id
-        );
-
-        if (addedIndex !== -1) {
-          data.added[addedIndex] = updatedStudent;
-        } else {
-          const updatedIndex = data.updated.findIndex(
-            item => item.id === id
-          );
-
-          if (updatedIndex !== -1) {
-            data.updated[updatedIndex] = updatedStudent;
-          } else {
-            data.updated.push(updatedStudent);
-          }
-        }
-
-        this.saveLocalData(data);
-
-        return updatedStudent;
-      })
+      // Keep the local update even if the API fails
+      catchError(() => of(updatedStudent))
     );
   }
 
   // Delete student
   deleteStudent(id: number): Observable<Student> {
+
+    const data = this.getLocalData();
+
+    // Remove from locally added and updated students
+    data.added = data.added.filter(
+      item => item.id !== id
+    );
+
+    data.updated = data.updated.filter(
+      item => item.id !== id
+    );
+
+    // Mark API student as deleted
+    if (!data.deletedIds.includes(id)) {
+      data.deletedIds.push(id);
+    }
+
+    // Save before calling the API
+    this.saveLocalData(data);
+
     return this.http.delete<Student>(
       `${this.apiUrl}/${id}`
     ).pipe(
-      map(response => {
-        const data = this.getLocalData();
-
-        // Remove from locally added and updated students
-        data.added = data.added.filter(
-          item => item.id !== id
-        );
-
-        data.updated = data.updated.filter(
-          item => item.id !== id
-        );
-
-        // Mark API student as deleted
-        if (!data.deletedIds.includes(id)) {
-          data.deletedIds.push(id);
-        }
-
-        this.saveLocalData(data);
-
-        return response;
-      })
+      // Keep the local deletion even if the API fails
+      catchError(() => of({ id } as Student))
     );
   }
 }

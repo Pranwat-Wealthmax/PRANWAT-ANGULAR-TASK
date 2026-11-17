@@ -1,3 +1,4 @@
+
 import { RouterLink } from '@angular/router';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { StudentService } from '../../services/student';
@@ -24,6 +25,9 @@ export class StudentList implements OnInit {
   loading = false;
   errorMessage = '';
 
+  // Student selected for viewing
+  selectedStudent: Student | null = null;
+
   ngOnInit(): void {
     this.loadStudents();
   }
@@ -41,6 +45,7 @@ export class StudentList implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Unable to fetch students. Please try again.';
+
         this.studentService.getLocalStudents(this.limit, this.skip).subscribe({
           next: (response) => {
             this.students = response.users;
@@ -54,6 +59,7 @@ export class StudentList implements OnInit {
             console.error(localError);
           }
         });
+
         this.changeDetector.markForCheck();
         console.error(error);
       }
@@ -90,6 +96,59 @@ export class StudentList implements OnInit {
     });
   }
 
+  // View student details
+  viewStudent(student: Student): void {
+    this.selectedStudent = student;
+    this.changeDetector.markForCheck();
+  }
+
+  // Close the View modal
+  closeView(): void {
+    this.selectedStudent = null;
+    this.changeDetector.markForCheck();
+  }
+
+  // Delete student
+  deleteStudent(student: Student): void {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${student.firstName} ${student.lastName}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.loading = true;
+
+    this.studentService.deleteStudent(student.id).subscribe({
+      next: () => {
+        // Remove the deleted student from the displayed list
+        this.students = this.students.filter(
+          item => item.id !== student.id
+        );
+
+        this.total = Math.max(0, this.total - 1);
+
+        this.loading = false;
+
+        // If the current page becomes empty, go to the previous page
+        if (this.students.length === 0 && this.skip > 0 && !this.searchQuery) {
+          this.skip = Math.max(0, this.skip - this.limit);
+          this.loadStudents();
+          return;
+        }
+
+        this.changeDetector.markForCheck();
+      },
+      error: (error) => {
+        this.errorMessage = 'Unable to delete student. Please try again.';
+        this.loading = false;
+        this.changeDetector.markForCheck();
+        console.error(error);
+      }
+    });
+  }
+
   nextPage(): void {
     if (this.skip + this.limit >= this.total) {
       return;
@@ -98,8 +157,6 @@ export class StudentList implements OnInit {
     this.skip += this.limit;
 
     if (this.searchQuery) {
-      // Search results are handled separately.
-      // We'll implement search pagination if needed.
       return;
     }
 

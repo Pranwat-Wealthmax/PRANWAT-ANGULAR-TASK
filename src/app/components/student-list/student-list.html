@@ -9,12 +9,12 @@
   />
 
   <button
-  type="button"
-  routerLink="/add"
-  class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
->
-  Add Student
-</button>
+    type="button"
+    routerLink="/add"
+    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+  >
+    Add Student
+  </button>
 
 </div>
 
@@ -62,15 +62,31 @@
 
           <td class="whitespace-nowrap px-4 py-3">
 
-            <button type="button" class="mr-2 text-blue-600 hover:underline">
+            <!-- View -->
+            <button
+              type="button"
+              (click)="viewStudent(student)"
+              class="mr-2 text-blue-600 hover:underline"
+            >
               View
             </button>
 
-            <button type="button" class="mr-2 text-amber-600 hover:underline">
+            <!-- Edit -->
+            <button
+              type="button"
+              [routerLink]="['/edit', student.id]"
+              class="mr-2 text-amber-600 hover:underline"
+            >
               Edit
             </button>
 
-            <button type="button" class="text-red-600 hover:underline">
+            <!-- Delete -->
+            <button
+              type="button"
+              (click)="deleteStudent(student)"
+              [disabled]="loading"
+              class="text-red-600 hover:underline disabled:opacity-50"
+            >
               Delete
             </button>
 
@@ -121,5 +137,94 @@
       </button>
 
     </div>
+  </div>
+}
+
+<!-- View Student Modal -->
+@if (selectedStudent; as student) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+
+    <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+
+      <div class="mb-5 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-800">
+          Student Details
+        </h2>
+
+        <button
+          type="button"
+          (click)="closeView()"
+          class="text-2xl text-gray-500 hover:text-gray-800"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+        <div>
+          <p class="text-xs text-gray-500">Student ID</p>
+          <p class="font-medium">{{ student.id }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">First Name</p>
+          <p class="font-medium">{{ student.firstName }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Last Name</p>
+          <p class="font-medium">{{ student.lastName }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Email</p>
+          <p class="font-medium">{{ student.email }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Phone</p>
+          <p class="font-medium">{{ student.phone }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Age</p>
+          <p class="font-medium">{{ student.age }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Gender</p>
+          <p class="font-medium">{{ student.gender }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">Address</p>
+          <p class="font-medium">{{ student.address?.address || 'N/A' }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">City</p>
+          <p class="font-medium">{{ student.address?.city || 'N/A' }}</p>
+        </div>
+
+        <div>
+          <p class="text-xs text-gray-500">State</p>
+          <p class="font-medium">{{ student.address?.state || 'N/A' }}</p>
+        </div>
+
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button
+          type="button"
+          (click)="closeView()"
+          class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+
   </div>
 }
