@@ -56,7 +56,15 @@ describe('StudentList', () => {
     const page = fixture.nativeElement as HTMLElement;
     expect(fixture.componentInstance.students).toHaveLength(1);
     expect(page.querySelector('tbody')?.textContent).toContain('Alex');
+    const internalId = String(fixture.componentInstance.students[0].id);
+    expect(page.querySelector('tbody tr td')?.textContent?.trim()).toBe('1');
+    expect(page.querySelector('tbody')?.textContent).not.toContain(internalId);
     expect(page.textContent).toContain('Unable to fetch students');
+
+    page.querySelector<HTMLButtonElement>('tbody button')?.click();
+    fixture.detectChanges();
+    expect(page.textContent).toContain('No.1');
+    expect(page.textContent).not.toContain(internalId);
   });
 
   it('should open the add form below the student table', () => {

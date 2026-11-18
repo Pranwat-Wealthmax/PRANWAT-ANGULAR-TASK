@@ -191,4 +191,16 @@ export class StudentList implements OnInit {
   get totalPages(): number {
     return Math.ceil(this.total / this.limit);
   }
+
+  get selectedStudentNumber(): number | null {
+    if (!this.selectedStudent) {
+      return null;
+    }
+
+    const index = this.students.findIndex(
+      student => student.id === this.selectedStudent?.id
+    );
+
+    return index === -1 ? null : this.skip + index + 1;
+  }
 }
