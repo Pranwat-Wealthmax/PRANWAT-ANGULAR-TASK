@@ -1,3 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 52%, #ecfdf5 100%);
+  background-attachment: fixed;
+  color: #1e293b;
+}
