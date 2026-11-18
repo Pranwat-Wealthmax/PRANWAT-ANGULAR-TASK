@@ -27,7 +27,6 @@ export class StudentList implements OnInit {
   errorMessage = '';
   isAddFormOpen = false;
 
-  // Student selected for viewing
   selectedStudent: Student | null = null;
 
   ngOnInit(): void {
@@ -103,19 +102,17 @@ export class StudentList implements OnInit {
     });
   }
 
-  // View student details
   viewStudent(student: Student): void {
     this.selectedStudent = student;
     this.changeDetector.markForCheck();
   }
 
-  // Close the View modal
   closeView(): void {
     this.selectedStudent = null;
     this.changeDetector.markForCheck();
   }
 
-  // Delete student
+
   deleteStudent(student: Student): void {
     const confirmed = window.confirm(
       `Are you sure you want to delete ${student.firstName} ${student.lastName}?`
@@ -129,7 +126,6 @@ export class StudentList implements OnInit {
 
     this.studentService.deleteStudent(student.id).subscribe({
       next: () => {
-        // Remove the deleted student from the displayed list
         this.students = this.students.filter(
           item => item.id !== student.id
         );
@@ -138,7 +134,6 @@ export class StudentList implements OnInit {
 
         this.loading = false;
 
-        // If the current page becomes empty, go to the previous page
         if (this.students.length === 0 && this.skip > 0 && !this.searchQuery) {
           this.skip = Math.max(0, this.skip - this.limit);
           this.loadStudents();
