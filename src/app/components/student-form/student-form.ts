@@ -1,5 +1,5 @@
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StudentService } from '../../services/student';
@@ -12,6 +12,10 @@ import { Student } from '../../models/student';
   templateUrl: './student-form.html',
 })
 export class StudentForm implements OnInit {
+
+  @Input() inline = false;
+  @Output() saved = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private studentService = inject(StudentService);
@@ -104,7 +108,11 @@ export class StudentForm implements OnInit {
     request.subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/']);
+        if (this.inline) {
+          this.saved.emit();
+        } else {
+          this.router.navigate(['/']);
+        }
       },
       error: (error) => {
         this.errorMessage = 'Unable to save student. Please try again.';
@@ -115,6 +123,10 @@ export class StudentForm implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/']);
+    if (this.inline) {
+      this.cancelled.emit();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }

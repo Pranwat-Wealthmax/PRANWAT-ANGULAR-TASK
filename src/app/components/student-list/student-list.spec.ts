@@ -58,4 +58,25 @@ describe('StudentList', () => {
     expect(page.querySelector('tbody')?.textContent).toContain('Alex');
     expect(page.textContent).toContain('Unable to fetch students');
   });
+
+  it('should open the add form below the student table', () => {
+    fixture = TestBed.createComponent(StudentList);
+    fixture.detectChanges();
+
+    httpTestingController
+      .expectOne('https://dummyjson.com/users?limit=0')
+      .flush({ users: [], total: 0, skip: 0, limit: 0 });
+    fixture.detectChanges();
+
+    const page = fixture.nativeElement as HTMLElement;
+    const addButton = Array.from(page.querySelectorAll('button'))
+      .find(button => button.textContent?.trim() === 'Add Student');
+
+    addButton?.click();
+    fixture.detectChanges();
+
+    expect(page.querySelector('app-student-form')).toBeTruthy();
+    expect(Array.from(page.querySelectorAll('table, app-student-form')).map(element => element.tagName))
+      .toEqual(['TABLE', 'APP-STUDENT-FORM']);
+  });
 });

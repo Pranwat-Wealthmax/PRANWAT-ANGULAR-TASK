@@ -3,9 +3,10 @@ import { RouterLink } from '@angular/router';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { StudentService } from '../../services/student';
 import { Student } from '../../models/student';
+import { StudentForm } from '../student-form/student-form';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, StudentForm],
   selector: 'app-student-list',
   styleUrl: './student-list.css',
   templateUrl: './student-list.html',
@@ -24,6 +25,7 @@ export class StudentList implements OnInit {
   searchQuery = '';
   loading = false;
   errorMessage = '';
+  isAddFormOpen = false;
 
   // Student selected for viewing
   selectedStudent: Student | null = null;
@@ -64,6 +66,11 @@ export class StudentList implements OnInit {
         console.error(error);
       }
     });
+  }
+
+  onStudentSaved(): void {
+    this.isAddFormOpen = false;
+    this.loadStudents();
   }
 
   searchStudents(event: Event): void {
