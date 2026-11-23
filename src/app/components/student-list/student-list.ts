@@ -1,4 +1,3 @@
-
 import { RouterLink } from '@angular/router';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { StudentService } from '../../services/student';
@@ -111,8 +110,6 @@ export class StudentList implements OnInit {
     this.selectedStudent = null;
     this.changeDetector.markForCheck();
   }
-
-
   deleteStudent(student: Student): void {
     const confirmed = window.confirm(
       `Are you sure you want to delete ${student.firstName} ${student.lastName}?`

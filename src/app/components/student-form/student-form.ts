@@ -1,4 +1,3 @@
-
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +11,6 @@ import { Student } from '../../models/student';
   templateUrl: './student-form.html',
 })
 export class StudentForm implements OnInit {
-
   @Input() inline = false;
   @Output() saved = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
